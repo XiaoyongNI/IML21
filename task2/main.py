@@ -184,7 +184,7 @@ def main():
 
         
         # label 11 for Subtask 2
-        if i == 10:
+        elif i == 10:
             # Do over-sampling to combat imbalanced dataset
             if oversample_dataset_sub2:
                 trainx_processed, yarray_i = over_sampling(trainx_processed, yarray_i, oversample_dataset) 
@@ -223,9 +223,9 @@ def main():
             train_labels_pred['{}'.format(labelName)] = trainy
 
         # Subtask 3
-        """
-        Reference: https://github.com/adodd202/HousingPricesML
-        """ 
+        
+        # Reference: https://github.com/adodd202/HousingPricesML
+
         else: 
             if model_sub3 == 'ridgeCV':
                 reg = RidgeCV(alphas=(0.01,1,100), fit_intercept=False, cv=5)                    
