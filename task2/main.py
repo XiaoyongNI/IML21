@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import xgboost as xgb
+import warnings
 
 from sklearn import svm
 from sklearn.linear_model import RidgeCV
@@ -58,11 +59,18 @@ def Preprocessing(xdata):
     # transform data dim to (pid# * 12d) and impute
     x_transformed = []
     for i in range(xarray.shape[0] // 12):
-        pid_i = xarray[i * 12:(i + 1) * 12, :]
+        pid_i = xarray[12*i:12*(i+1), :]
         # impute nan with median value of that pid i
-        median_pidi = np.nanmedian(pid_i, axis=0)
-        index = np.where(np.isnan(pid_i))
-        pid_i[index] = np.take(median_pidi, index[1])
+        for j in range(xarray.shape[1]):
+            tmp =  pid_i[:,j]
+            column_median = np.nanmedian(xarray[:, j])
+            if np.count_nonzero(np.isnan(tmp))<12:
+                median_val = np.nanmedian(tmp)
+                indexs = np.where(np.isnan(tmp))
+                pid_i[indexs,j] = median_val
+            elif np.count_nonzero(np.isnan(tmp))==12:
+                # all 12 nan
+                pid_i[:,j] = column_median 
         # transform data dim
         pid_i = np.reshape(pid_i,-1)
         x_transformed.append(pid_i)
@@ -132,7 +140,9 @@ def main():
     trainx_processed, pidID_train = Preprocessing(train_features)
     testx_processed, pidID_test = Preprocessing(test_features)
 
+    # debug
     # print(trainx_processed.shape)
+    np.savetxt('processed_trainx.csv', trainx_processed, delimiter = ',')
 
     # Pre-defined pd dataframe for saving predicting results
     test_labels = pd.DataFrame()
